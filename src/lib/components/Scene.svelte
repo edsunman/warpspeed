@@ -13,7 +13,7 @@
 	})
 </script>
 
-<T.PerspectiveCamera makeDefault={true} position={[-10, 10, 10]}>
+<T.PerspectiveCamera makeDefault={false} position={[-10, 10, 10]}>
 	<OrbitControls />
 </T.PerspectiveCamera>
 

@@ -181,7 +181,7 @@
 
 		trailPosition = { x: shipWorldPosition.x, y: shipWorldPosition.y, z: shipWorldPosition.z }
 
-		if (speed > 15.5) {
+		if (speed > 25) {
 			trailOpacity < 1 ? (trailOpacity += delta) : null
 		}
 

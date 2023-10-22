@@ -4,7 +4,7 @@ Command: npx @threlte/gltf@2.0.0 track.glb --transform
 -->
 
 <script>
-	import { Group } from 'three'
+	import { BoxGeometry, Group, MeshStandardMaterial } from 'three'
 	import { T, forwardEventHandlers } from '@threlte/core'
 	import { useGltf, useTexture } from '@threlte/extras'
 
@@ -18,7 +18,7 @@ Command: npx @threlte/gltf@2.0.0 track.glb --transform
 
 <T is={ref} dispose={false} {...$$restProps} bind:this={$component}>
 	{#await gltf then gltf}
-		<T.Mesh geometry={gltf.nodes.Plane.geometry}>
+		<T.Mesh geometry={gltf.nodes.Plane.geometry} name="track">
 			{#await texture then t}
 				<T.MeshToonMaterial color="#ffffff" toneMapped={false}>
 					<T is={t} attach="map" flipY={false} />
@@ -27,3 +27,13 @@ Command: npx @threlte/gltf@2.0.0 track.glb --transform
 		</T.Mesh>
 	{/await}
 </T>
+
+<T.Mesh name="booster" visible={false} position={[-27, 7.2, -75]} rotation={[0, 0.1, 0]}>
+	<T.BoxGeometry args={[6, 1, 1]} />
+	<T.MeshStandardMaterial />
+</T.Mesh>
+
+<T.Mesh name="booster" visible={false} position={[-20, -2.5, -2]} rotation={[0, 1.57, 0]}>
+	<T.BoxGeometry args={[6, 1, 1]} />
+	<T.MeshStandardMaterial />
+</T.Mesh>

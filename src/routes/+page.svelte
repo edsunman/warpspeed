@@ -1,6 +1,10 @@
 <script lang="ts">
 	import App from '../lib/components/App.svelte'
-	import { formattedScore, highScore } from '$lib/stores'
+	import { formattedScore, highScore, gameStarted } from '$lib/stores'
+
+	const start = () => {
+		$gameStarted = true
+	}
 </script>
 
 <div id="container">
@@ -9,6 +13,11 @@
 		{#if $highScore > 0} <h3>{$highScore}</h3> {/if}
 	</div>
 	<App />
+	{#if !$gameStarted}
+		<div id="startButton">
+			<button on:click={() => start()}>Start</button>
+		</div>
+	{/if}
 </div>
 
 <style>
@@ -29,6 +38,15 @@
 		color: #fff;
 		width: 100%;
 		top: 20px;
+		font-family: 'Source Code Pro', monospace;
+	}
+
+	#startButton {
+		position: absolute;
+		text-align: center;
+		color: #fff;
+		width: 100%;
+		bottom: 20px;
 		font-family: 'Source Code Pro', monospace;
 	}
 

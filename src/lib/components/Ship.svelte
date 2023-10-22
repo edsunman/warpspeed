@@ -1,18 +1,18 @@
 <script lang="ts">
 	import { T, useFrame, useThrelte } from '@threlte/core'
-	import { Float } from '@threlte/extras'
+	import { Float, MeshLineGeometry, MeshLineMaterial } from '@threlte/extras'
 	import { Vector3, type Mesh, Group, PerspectiveCamera, Raycaster } from 'three'
 	import { cubicOut, cubicInOut } from 'svelte/easing'
-	import { score, formattedScore, highScore } from '$lib/stores'
+	import { score, formattedScore, highScore, shipHeight, gameStarted } from '$lib/stores'
 	import { spring } from 'svelte/motion'
+	import Trail from './Trail.svelte'
 
 	let group: Group
 	let ship: Mesh
 	let cameraHelper: Mesh
 	let camera: PerspectiveCamera
-	//let position = new Vector3(0, 0.6, 0)
 	let rotation = 0
-	let speed = 15
+	let speed = 0
 	let turnAmount = 0
 	let easedTurnAmount = 0
 	let direction: 'none' | 'left' | 'right' = 'none'
@@ -22,9 +22,29 @@
 	let distanceToGround = 0
 	let groundHeight = 0
 	let gravity = 0
+	let boosting = false
+	let decelerate = false
+	let preBoostSpeed = 0
+	let fov = 50
+	let cameraDistance = -4.5
+	let started = false
+	let trailPosition = { x: 0, y: 0, z: 0 }
+	let resetTrail: any
 	const raycaster = new Raycaster()
 	const downDirection = new Vector3(0, -1, 0)
 	const shipWorldPosition = new Vector3(0, 0, 0)
+
+	const points = [
+		new Vector3(0, 1, 0),
+		new Vector3(2, -1, 1.25),
+		new Vector3(0, -1.2, 2.5),
+		new Vector3(-1, -0.8, 2),
+		new Vector3(0, 1, 0),
+		new Vector3(2, -1, -1.25),
+		new Vector3(0, -1.2, -2.5),
+		new Vector3(-1, -0.8, -2),
+		new Vector3(0, 1, 0)
+	]
 
 	const { scene } = useThrelte()
 
@@ -51,18 +71,52 @@
 	}
 
 	const reset = () => {
-		group.position.set(0, 1, 0)
+		group.position.set(0, -1.4, 0)
 		rotation = 0
 		speed = 15
+		fov = 50
+		cameraDistance = -4.5
+		boosting = false
+		decelerate = false
+		resetTrail({ x: shipWorldPosition.x, y: shipWorldPosition.y, z: shipWorldPosition.z })
 		$highScore = $formattedScore
 		$score = 0
 	}
 
+	const boost = () => {
+		if (boosting) return
+		boosting = true
+		preBoostSpeed = speed
+		setTimeout(() => {
+			boosting = false
+			decelerate = true
+		}, 1500)
+	}
+
+	$: {
+		started = $gameStarted
+		speed = 15
+	}
+
 	useFrame((_, delta) => {
 		if (delta > 0.5) return
-		if (!group || !ship || !cameraHelper) return
+		if (!group || !ship || !cameraHelper || !started) return
 
-		speed += delta / 6
+		if (boosting) {
+			speed += delta * 10
+			fov += delta * 30
+			cameraDistance += delta
+		} else if (decelerate) {
+			speed -= delta * 5
+			fov > 50 ? (fov -= delta * 18) : null
+			cameraDistance > -4.5 ? (cameraDistance -= delta) : null
+			if (speed < preBoostSpeed) {
+				decelerate = false
+				fov = 50
+			}
+		} else {
+			speed += delta / 4
+		}
 
 		group.translateY(delta * speed)
 
@@ -99,10 +153,14 @@
 		intersectedObjects = raycaster.intersectObjects(scene.children)
 
 		if (intersectedObjects[0]) {
-			distanceToGround = intersectedObjects[0].distance
-			groundHeight = intersectedObjects[0].point.y
+			if (intersectedObjects[0].object.name === 'track') {
+				distanceToGround = intersectedObjects[0].distance
+				groundHeight = intersectedObjects[0].point.y
+			} else if (intersectedObjects[0].object.name === 'booster') {
+				boost()
+			}
 		} else {
-			distanceToGround = 100
+			distanceToGround = 11
 		}
 
 		if (distanceToGround > 1.1) {
@@ -113,36 +171,47 @@
 			gravity = 0
 		}
 
-		if (group.position.y < -5) reset()
-
-		//console.log(group.position.y)
-
 		rotation += delta * easedTurnAmount
 		sprungPosition.set({ p: (easedTurnAmount * -1) / 1.5 })
 
 		$score += delta
+		distanceToGround < 1.2 ? ($shipHeight = 1) : ($shipHeight = distanceToGround)
+
+		trailPosition = { x: shipWorldPosition.x, y: shipWorldPosition.y, z: shipWorldPosition.z }
+
+		if (group.position.y < -5) reset()
 	})
 </script>
 
-<T.Group bind:ref={group} rotation={[0, rotation, 1.57]} position.y={1}>
+<T.Group bind:ref={group} rotation={[0, rotation, 1.57]} position.y={-1.4}>
 	<Float
 		floatIntensity={0.5}
 		rotationIntensity={0}
 		floatingRange={[
 			[-0.1, 0.1],
 			[0, 0],
-			[-0.1, 0.1]
+			[0, 0]
 		]}
 		speed={10}
 	>
 		<T.Mesh
 			bind:ref={ship}
 			position.z={$sprungPosition.p}
+			scale={[0.12, 0.6, 0.12]}
+			rotation={[0, (easedTurnAmount * -1) / 2, 0]}
+		>
+			<MeshLineGeometry {points} />
+			<MeshLineMaterial width={0.02} />
+		</T.Mesh>
+		<T.Mesh
+			visible={true}
+			bind:ref={ship}
+			position.z={$sprungPosition.p}
 			scale={[0.2, 1, 0.2]}
 			rotation={[0, (easedTurnAmount * -1) / 2, 0]}
 		>
-			<T.ConeGeometry />
-			<T.MeshStandardMaterial color="#00ffBA" wireframe />
+			<T.ConeGeometry args={[0.8]} />
+			<T.MeshStandardMaterial color="#2b79ff" wireframe />
 		</T.Mesh>
 	</Float>
 	<T.Mesh bind:ref={cameraHelper} position.y={-5} visible={false}>
@@ -152,9 +221,14 @@
 	<T.PerspectiveCamera
 		bind:ref={camera}
 		makeDefault={true}
-		position={[1, -5, 0]}
+		position={[1, cameraDistance, 0]}
 		rotation={[1.57, 0.1, -1.57]}
+		{fov}
 	/>
 </T.Group>
+<Trail
+	position={{ x: trailPosition.x, y: trailPosition.y, z: trailPosition.z }}
+	bind:reset={resetTrail}
+/>
 
 <svelte:window on:keydown={onKeyDown} on:keyup={onKeyUp} />

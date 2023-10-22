@@ -15,7 +15,7 @@
 	<App />
 	{#if !$gameStarted}
 		<div id="startButton">
-			<button on:click={() => start()}>Start</button>
+			<button on:click={() => start()}>START</button>
 		</div>
 	{/if}
 </div>
@@ -46,8 +46,21 @@
 		text-align: center;
 		color: #fff;
 		width: 100%;
-		bottom: 20px;
+		bottom: 100px;
 		font-family: 'Source Code Pro', monospace;
+		font-size: 40px;
+	}
+
+	#startButton button {
+		font-family: 'Source Code Pro', monospace;
+
+		background: none;
+		color: inherit;
+		border: none;
+		padding: 0;
+		font: inherit;
+		cursor: pointer;
+		outline: inherit;
 	}
 
 	h1 {

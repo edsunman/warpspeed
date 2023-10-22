@@ -30,6 +30,7 @@
 	let started = false
 	let trailPosition = { x: 0, y: 0, z: 0 }
 	let resetTrail: any
+	let trailOpacity = 0
 	const raycaster = new Raycaster()
 	const downDirection = new Vector3(0, -1, 0)
 	const shipWorldPosition = new Vector3(0, 0, 0)
@@ -79,6 +80,7 @@
 		boosting = false
 		decelerate = false
 		resetTrail({ x: shipWorldPosition.x, y: shipWorldPosition.y, z: shipWorldPosition.z })
+		trailOpacity = 0
 		$highScore = $formattedScore
 		$score = 0
 	}
@@ -179,6 +181,10 @@
 
 		trailPosition = { x: shipWorldPosition.x, y: shipWorldPosition.y, z: shipWorldPosition.z }
 
+		if (speed > 15.5) {
+			trailOpacity < 1 ? (trailOpacity += delta) : null
+		}
+
 		if (group.position.y < -5) reset()
 	})
 </script>
@@ -228,6 +234,7 @@
 </T.Group>
 <Trail
 	position={{ x: trailPosition.x, y: trailPosition.y, z: trailPosition.z }}
+	opacity={trailOpacity}
 	bind:reset={resetTrail}
 />
 

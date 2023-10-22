@@ -4,6 +4,7 @@
 	import { Vector3 } from 'three'
 	import { spring } from 'svelte/motion'
 	export let position: { x: number; y: number; z: number }
+	export let opacity = 0
 	export let color = '#ffffff'
 	export let width = 0.08
 	export let stiffness = 0.2
@@ -52,5 +53,5 @@
 
 <T.Mesh {...$$restProps}>
 	<MeshLineGeometry {points} shape={'taper'} />
-	<MeshLineMaterial {width} {color} scaleDown={0.1} />
+	<MeshLineMaterial {width} {color} scaleDown={0.1} {opacity} transparent />
 </T.Mesh>

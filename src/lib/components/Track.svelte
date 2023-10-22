@@ -4,7 +4,7 @@ Command: npx @threlte/gltf@2.0.0 track.glb --transform
 -->
 
 <script>
-	import { BoxGeometry, Group, MeshStandardMaterial } from 'three'
+	import { BoxGeometry, Group, Shape, ExtrudeGeometry, MeshBasicMaterial, Vector2 } from 'three'
 	import { T, forwardEventHandlers } from '@threlte/core'
 	import { useGltf, useTexture } from '@threlte/extras'
 
@@ -14,6 +14,36 @@ Command: npx @threlte/gltf@2.0.0 track.glb --transform
 	const texture = useTexture('/atlas.png')
 
 	const component = forwardEventHandlers()
+
+	const heartShape = new Shape([
+		new Vector2(24, 24),
+		new Vector2(0, 24),
+		new Vector2(12, 12),
+		new Vector2(24, 0),
+		new Vector2(24, 24)
+	])
+
+	//heartShape.moveTo(25, 25)
+	//heartShape.moveTo(25, 0)
+	//heartShape.moveTo(0, 25)
+	//heartShape.moveTo(25, 25)
+	//heartShape.bezierCurveTo(25, 25, 20, 0, 0, 0)
+	//heartShape.bezierCurveTo(-30, 0, -30, 35, -30, 35)
+	//heartShape.bezierCurveTo(-30, 55, -10, 77, 25, 95)
+	//heartShape.bezierCurveTo(60, 77, 80, 55, 80, 35)
+	//	heartShape.bezierCurveTo(80, 35, 80, 0, 50, 0)
+	//	heartShape.bezierCurveTo(35, 0, 25, 25, 25, 25)
+
+	const extrudeSettings = {
+		depth: 2,
+		bevelEnabled: true,
+		bevelSegments: 2,
+		steps: 2,
+		bevelSize: 1,
+		bevelThickness: 1
+	}
+
+	const geometry = new ExtrudeGeometry(heartShape, extrudeSettings)
 </script>
 
 <T is={ref} dispose={false} {...$$restProps} bind:this={$component}>
@@ -28,12 +58,33 @@ Command: npx @threlte/gltf@2.0.0 track.glb --transform
 	{/await}
 </T>
 
-<T.Mesh name="booster" visible={false} position={[-27, 7.2, -75]} rotation={[0, 0.1, 0]}>
+<T.Mesh name="booster" visible={false} position={[-27, 7.5, -75]} rotation={[0, 0.1, 0]}>
 	<T.BoxGeometry args={[6, 1, 1]} />
 	<T.MeshStandardMaterial />
 </T.Mesh>
 
-<T.Mesh name="booster" visible={false} position={[-20, -2.5, -2]} rotation={[0, 1.57, 0]}>
-	<T.BoxGeometry args={[6, 1, 1]} />
+<T.Group position={[-29.9, 7.9, -80]} scale={[0.09, 0.3, 0.09]} rotation={[1.57, 0, -0.1]}>
+	<T.Mesh name="chevron" rotation.z={0.785}>
+		<T is={geometry} />
+		<T.MeshBasicMaterial wireframe />
+	</T.Mesh>
+	<T.Mesh name="chevron" rotation.z={0.785} position.x={40}>
+		<T is={geometry} />
+		<T.MeshBasicMaterial wireframe />
+	</T.Mesh>
+</T.Group>
+
+<T.Mesh name="booster" visible={false} position={[-5, -2.5, -3.4]} rotation={[0, 1.57, 0]}>
+	<T.BoxGeometry args={[7, 1, 1]} />
 	<T.MeshStandardMaterial />
 </T.Mesh>
+<T.Group position={[0, -2.2, -5.3]} scale={[0.09, 0.3, 0.09]} rotation={[1.57, 0, 1.57]}>
+	<T.Mesh name="chevron" rotation.z={0.785}>
+		<T is={geometry} />
+		<T.MeshBasicMaterial wireframe />
+	</T.Mesh>
+	<T.Mesh name="chevron" rotation.z={0.785} position.x={40}>
+		<T is={geometry} />
+		<T.MeshBasicMaterial wireframe />
+	</T.Mesh>
+</T.Group>

@@ -11,7 +11,6 @@
 	export let damping = 0.2
 
 	export const reset = (p: any) => {
-		console.log(p)
 		points.forEach((point, i) => {
 			point.x = p.x
 			point.y = p.y

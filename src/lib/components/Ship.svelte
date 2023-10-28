@@ -4,7 +4,8 @@
 	import { Vector3, type Mesh, Group, PerspectiveCamera, Raycaster } from 'three'
 	import { cubicOut, cubicInOut } from 'svelte/easing'
 	import { score, formattedScore, highScore, shipHeight, gameStarted } from '$lib/stores'
-	import { spring } from 'svelte/motion'
+	//import { spring } from 'svelte/motion'
+	import { spring } from '$lib/util'
 	import Trail from './Trail.svelte'
 
 	let group: Group
@@ -49,13 +50,16 @@
 
 	const { scene } = useThrelte()
 
-	let sprungPosition = spring(
+	/*let sprungPosition = spring(
 		{ p: 0 },
 		{
 			stiffness: 0.01,
 			damping: 0.08
 		}
-	)
+	) 8*/
+
+	let sprungPosition = 0
+	let positionSpring = spring(0, 0.01, 0.08)
 
 	const onKeyDown = (e: KeyboardEvent) => {
 		if (e.key === 'a' || e.key === 'd') {
@@ -174,7 +178,9 @@
 		}
 
 		rotation += delta * easedTurnAmount
-		sprungPosition.set({ p: (easedTurnAmount * -1) / 1.5 })
+		//sprungPosition.set({ p: (easedTurnAmount * -1) / 1.5 })
+		positionSpring.set((easedTurnAmount * -1) / 1.5)
+		sprungPosition = positionSpring.update(delta)
 
 		$score += delta
 		distanceToGround < 1.2 ? ($shipHeight = 1) : ($shipHeight = distanceToGround)
@@ -202,7 +208,7 @@
 	>
 		<T.Mesh
 			bind:ref={ship}
-			position.z={$sprungPosition.p}
+			position.z={sprungPosition}
 			scale={[0.12, 0.6, 0.12]}
 			rotation={[0, (easedTurnAmount * -1) / 2, 0]}
 		>
@@ -212,7 +218,7 @@
 		<T.Mesh
 			visible={true}
 			bind:ref={ship}
-			position.z={$sprungPosition.p}
+			position.z={sprungPosition}
 			scale={[0.2, 1, 0.2]}
 			rotation={[0, (easedTurnAmount * -1) / 2, 0]}
 		>

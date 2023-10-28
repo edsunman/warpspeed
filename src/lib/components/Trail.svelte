@@ -32,9 +32,9 @@
 	$: sprungPosition.set(position)
 	$: {
 		if (points[0]) {
-			points[0].x = $sprungPosition.x
-			points[0].y = $sprungPosition.y
-			points[0].z = $sprungPosition.z
+			points[0].x = position.x
+			points[0].y = position.y
+			points[0].z = position.z
 			points = points
 		}
 	}

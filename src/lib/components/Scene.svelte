@@ -1,17 +1,32 @@
 <script lang="ts">
 	import { T, useFrame } from '@threlte/core'
 	import { OrbitControls, Float } from '@threlte/extras'
-	import { musicVolume } from '$lib/stores'
+	import { spring } from '$lib/util'
 	import Ship from './Ship.svelte'
 	import Track from './Track.svelte'
 	import Music from './Music.svelte'
 
 	let rotation = 0
 
+	let position: number
+	const positionSpring = spring(5)
+
+	setInterval(() => {
+		const bouncy = Math.random() * 20
+		positionSpring.set(bouncy)
+	}, 1000)
+
 	useFrame((_, delta) => {
 		rotation += delta / 50
+		if (delta > 0.5) return
+		position = positionSpring.update(delta)
 	})
 </script>
+
+<T.Mesh position.y={position}>
+	<T.SphereGeometry />
+	<T.MeshStandardMaterial />
+</T.Mesh>
 
 <T.PerspectiveCamera makeDefault={false} position={[-10, 10, 10]}>
 	<OrbitControls />

@@ -50,14 +50,6 @@
 
 	const { scene } = useThrelte()
 
-	/*let sprungPosition = spring(
-		{ p: 0 },
-		{
-			stiffness: 0.01,
-			damping: 0.08
-		}
-	) 8*/
-
 	let sprungPosition = 0
 	let positionSpring = spring(0, 0.01, 0.08)
 
@@ -76,7 +68,7 @@
 	}
 
 	const reset = () => {
-		group.position.set(0, -1.4, 0)
+		group.position.set(2, -1.4, -3.5)
 		rotation = 0
 		speed = 15
 		fov = 50
@@ -178,7 +170,6 @@
 		}
 
 		rotation += delta * easedTurnAmount
-		//sprungPosition.set({ p: (easedTurnAmount * -1) / 1.5 })
 		positionSpring.set((easedTurnAmount * -1) / 1.5)
 		sprungPosition = positionSpring.update(delta)
 
@@ -195,7 +186,13 @@
 	})
 </script>
 
-<T.Group bind:ref={group} rotation={[0, rotation, 1.57]} position.y={-1.4}>
+<T.Group
+	bind:ref={group}
+	rotation={[0, rotation, 1.57]}
+	position.y={-1.4}
+	position.z={-3.5}
+	position.x={2}
+>
 	<Float
 		floatIntensity={0.5}
 		rotationIntensity={0}
@@ -214,16 +211,6 @@
 		>
 			<MeshLineGeometry {points} />
 			<MeshLineMaterial width={0.02} />
-		</T.Mesh>
-		<T.Mesh
-			visible={true}
-			bind:ref={ship}
-			position.z={sprungPosition}
-			scale={[0.2, 1, 0.2]}
-			rotation={[0, (easedTurnAmount * -1) / 2, 0]}
-		>
-			<T.ConeGeometry args={[0.8]} />
-			<T.MeshStandardMaterial color="#2b79ff" wireframe />
 		</T.Mesh>
 	</Float>
 	<T.Mesh bind:ref={cameraHelper} position.y={-5} visible={false}>

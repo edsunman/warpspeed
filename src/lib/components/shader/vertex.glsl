@@ -1,6 +1,7 @@
 varying vec3 vPositionW;
 varying vec3 vNormalW;
 varying vec2 vUv;
+varying vec3 vDistance;
 
 void main() {
 
@@ -10,5 +11,5 @@ void main() {
     vUv = uv;
 
     gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-
+    vDistance = gl_Position.xyz;
 }
